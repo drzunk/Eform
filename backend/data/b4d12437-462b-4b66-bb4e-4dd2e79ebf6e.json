@@ -1,0 +1,23 @@
+{
+    "preActions": [],
+    "data": {
+        "HoVaTenC": "Đào Anh Dũng (Tự Động 100%)",
+        "SoDinhDanhC": "012345678999",
+        "NgayCapDDC": "2024-05-20",
+        "NoiCapDDC": "Cục Cảnh Sát QLHC",
+        "NDK_HoVaTen": "Nguyễn Văn A (Người đăng ký)",
+        "NDK_SoDinhDanh": "098765432100",
+        "NDK_NgaySinh": "1990-01-15",
+        "NDK_SoGiayToTuyThan": "098765432100",
+        "NDK_NgayCap": "2024-05-20",
+        "NDK_NoiCap": "Cục Cảnh Sát QLHC",
+        "HoSo_CoQuanDangKy": "Tòa Án Nhân Dân Tối Cao",
+        "HoSo_TenGiayTo": "Giấy khai sinh",
+        "HoSo_So": "KS-001",
+        "HoSo_QuyenSo": "01",
+        "HoSo_NgayCapSo": "2020-06-15",
+        "SoLuong": "1",
+        "SoGiayToTuyThanC": "012345678999"
+    },
+    "aliases": {}
+}

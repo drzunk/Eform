@@ -1,0 +1,35 @@
+{
+    "preActions": [
+        { "type": "click", "text": "Thêm", "repeat": 1 }
+    ],
+    "data": {
+        "GLOBAL_HoTen": "Đào Anh Dũng (Tự Động 100%)",
+        "GLOBAL_SoGiayTo": "012345678999",
+        "GLOBAL_NgayCap": "2024-05-20",
+        "GLOBAL_NoiCap": "Cục Cảnh Sát QLHC",
+        "GLOBAL_DiaChi": "Tòa nhà Landmark 72, Phạm Hùng",
+        "GLOBAL_DienThoai": "0987654321",
+        "GLOBAL_Email": "dungda@example.com",
+        "GLOBAL_LoaiGiayTo": "4",
+        "GLOBAL_QuocTich": "VN",
+        "GLOBAL_DanToc": "Kinh",
+        "GLOBAL_GioiTinh": "1",
+        "GLOBAL_TinhThanh": "01",
+        "GLOBAL_PhuongXa": "00166"
+    },
+    "aliases": {
+        "GLOBAL_HoTen": ["NYC_HoVaTen", "HoTen", "HoVaTen", "FullName", "Name", "Ten", "NguoiYeuCau", "ChuHo", "NguoiKhai", "Họ, chữ đệm, tên", "Họ và tên"],
+        "GLOBAL_SoGiayTo": ["NYC_SoDinhDanh", "SoDinhDanh", "SoCMND", "SoCCCD", "CMND", "CCCD", "Passport", "IDNumber", "Số định danh cá nhân", "Số giấy tờ"],
+        "GLOBAL_NgayCap": ["NYC_NgayCap", "NgayCap", "DateOfIssue", "NgayCapGiayTo", "Ngày cấp"],
+        "GLOBAL_NoiCap": ["NYC_NoiCap", "NoiCap", "PlaceOfIssue", "CoQuanCap", "Nơi cấp", "Cơ quan cấp"],
+        "GLOBAL_DiaChi": ["NYC_DiaChi", "DiaChi", "Address", "NoiCuTru", "ThuongTru", "ChoO", "Nơi cư trú", "Địa chỉ"],
+        "GLOBAL_DienThoai": ["NYC_DienThoai", "DienThoai", "Phone", "SoDienThoai", "Mobile", "Điện thoại"],
+        "GLOBAL_Email": ["NYC_Email", "Email", "ThuDienTu"],
+        "GLOBAL_LoaiGiayTo": ["LoaiGiayTo", "GiayToTuyThan", "Loại giấy tờ", "Giấy tờ tùy thân"],
+        "GLOBAL_QuocTich": ["QuocTich", "Quốc tịch"],
+        "GLOBAL_DanToc": ["DanToc", "Dân tộc"],
+        "GLOBAL_GioiTinh": ["GioiTinh", "Giới tính"],
+        "GLOBAL_TinhThanh": ["Tinh", "ThanhPho", "Tỉnh", "Thành phố", "Thành phố Hà Nội"],
+        "GLOBAL_PhuongXa": ["PhuongXa", "Phường Xã", "Phường", "Xã"]
+    }
+}

@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Auto Fill Pro",
+  "version": "2.1",
+  "description": "Hệ thống tự động điền form nâng cao (Hỗ trợ Iframe, Alias, Arrays)",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Auto Fill Pro"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "all_frames": true
+    }
+  ]
+}

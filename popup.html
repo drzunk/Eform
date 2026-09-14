@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { width: 300px; padding: 15px; font-family: 'Segoe UI', sans-serif; text-align: center; }
+    h3 { margin-top: 0; color: #333; }
+    p { font-size: 13px; color: #555; }
+    button { width: 100%; padding: 15px; font-size: 16px; background-color: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+    button:hover { background-color: #1976D2; transform: translateY(-1px); box-shadow: 0 6px 12px rgba(0,0,0,0.15); }
+    button:disabled { background-color: #ccc; cursor: not-allowed; }
+    #status { margin-top: 15px; font-size: 13px; font-weight: bold; }
+    .loader { display: none; border: 3px solid #f3f3f3; border-top: 3px solid #3498db; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; margin: 10px auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <h3>🤖 Auto Fill Bot</h3>
+  <p>Tự động phân tích URL và lấy dữ liệu từ Python Backend.</p>
+  <button id="fillBtn">Quét Form & Tự Điền</button>
+  <div class="loader" id="loader"></div>
+  <div id="status"></div>
+  <script src="popup.js"></script>
+</body>
+</html>
