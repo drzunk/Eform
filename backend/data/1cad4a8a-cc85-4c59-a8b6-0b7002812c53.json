@@ -1,0 +1,31 @@
+{
+  "data": {
+    "HoVaTenC": "Đào Anh Dũng (Tự Động 100%)",
+    "SoDinhDanhC": "012345678999",
+    "SoGiayToDinhDanhC": "012345678999",
+    "NgayCapDDC": "2024-05-20",
+    "NoiCapDDC": "Cục Cảnh Sát QLHC",
+    "HoTenKS": "Nguyễn Văn An",
+    "NgaySinhChon": "1990-01-15",
+    "DocNgaySinh": "Ngày mười lăm tháng một năm một nghìn chín trăm chín mươi",
+    "HoTenMeKS": "Nguyễn Thị Mẹ",
+    "NamSinhMeKS": "1990-01-15",
+    "SoDinhDanhMe": "012345678998",
+    "SoGiayToDinhDanhMe": "012345678998",
+    "NgayCapDDMe": "2024-05-20",
+    "NoiCapDDMe": "Cục Cảnh Sát QLHC",
+    "HoTenChaKS": "Trần Văn Cha",
+    "NamSinhChaKS": "1990-01-15",
+    "SoDinhDanhCha": "012345678997",
+    "SoGiayToDinhDanhCha": "012345678997",
+    "NgayCapDDCha": "2024-05-20",
+    "NoiCapDDCha": "Cục Cảnh Sát QLHC"
+  },
+  "aliases": {
+    "HoVaTenC": ["HoVaTen", "HoTen", "hovaten"],
+    "SoDinhDanhC": ["SoDinhDanh", "CCCD", "CMND"],
+    "HoTenKS": ["HoTenKhaiSinh", "TenNguoiKhaiSinh"],
+    "HoTenMeKS": ["HoTenMe", "TenMe"],
+    "HoTenChaKS": ["HoTenCha", "TenCha"]
+  }
+}

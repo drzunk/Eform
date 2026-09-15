@@ -63,9 +63,16 @@ function getFieldLabel(el) {
   if (el.name) parts.push(el.name);
   if (el.id) parts.push(el.id);
   if (el.placeholder) parts.push(el.placeholder);
+  if (el.getAttribute && el.getAttribute('aria-label')) parts.push(el.getAttribute('aria-label'));
+
+  // Tìm <label for="id"> trong toàn document
+  if (el.id) {
+    var lbl = document.querySelector('label[for="' + el.id + '"]');
+    if (lbl) parts.push(lbl.textContent.trim());
+  }
 
   var node = el;
-  for (var level = 0; level < 4 && node; level++) {
+  for (var level = 0; level < 6 && node; level++) {
     var parent = node.parentElement;
     if (!parent || parent.tagName === 'BODY') break;
 
@@ -112,9 +119,13 @@ function getFieldLabel(el) {
 
 // ===== FILL DROPDOWN (Custom React/MUI Select) =====
 async function fillDropdown(trigger, dataValue, textValue) {
+  // Đóng bất kỳ dropdown nào đang mở trước
+  document.body.click();
+  await delay(200);
+
   trigger.scrollIntoView({ block: 'center' });
   trigger.click();
-  await delay(700);
+  await delay(800);
 
   var all = Array.from(document.querySelectorAll('li, span, div, p, option'));
   var opt = all.reverse().find(function(el) {
@@ -131,8 +142,18 @@ async function fillDropdown(trigger, dataValue, textValue) {
     return false;
   });
 
-  if (opt) { opt.click(); await delay(400); return true; }
-  else { document.body.click(); await delay(200); return false; }
+  if (opt) {
+    opt.click();
+    await delay(500);
+    // Đảm bảo dropdown đã đóng
+    document.body.click();
+    await delay(300);
+    return true;
+  } else {
+    document.body.click();
+    await delay(200);
+    return false;
+  }
 }
 
 // ===== FLATTEN DATA + ALIAS =====
