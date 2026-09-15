@@ -1,24 +1,25 @@
 {
   "input": {
-    "họ tên, họ và tên, họ chữ đệm, họ tên người yêu cầu, người khai, tên tổ chức, tên cá nhân, đại diện, ký tên, họ chữ đệm tên, họ đệm tên, chữ đệm tên": "Đào Anh Dũng (Tự Động 100%)",
-    "họ tên người được cấp, họ tên người được đăng ký, họ tên vợ, họ tên chồng": "Nguyễn Văn A",
-    "họ tên cha": "Trần Văn Cha",
-    "họ tên mẹ": "Lê Thị Mẹ",
-    "số định danh, cmnd, cccd, số giấy tờ, passport, hộ chiếu, số giấy chứng nhận, số thẻ, mã số": "012345678999",
-    "nơi cấp, cơ quan cấp": "Cục Cảnh Sát QLHC",
+    "họ tên người yêu cầu, hovatenc, hovaten, người khai, tên tổ chức, tên cá nhân, đại diện, ký tên, họ chữ đệm, họ chữ đệm tên": "Đào Anh Dũng (Tự Động 100%)",
+    "họ tên người được, hotenks, hotennguoiduoc, hovatenduoc, người được khai sinh": "Nguyễn Văn Khai Sinh",
+    "họ tên cha, hotenchaks, hotencha": "Trần Văn Cha",
+    "họ tên mẹ, hotenmeks, hotenme": "Lê Thị Mẹ",
+    "số định danh, cccd, cmnd, số thẻ, số giấy chứng nhận, sodinhdanh, sodinhdanhc, sodinhdanhme, sodinhdanhcha, sodinhdanhks, sogiaytodinhdanh, sogiaytodinhdanhc, sogiaytodinhdanhme, sogiaytodinhdanhcha": "012345678999",
+    "nơi cấp, cơ quan cấp, noicap, noicapddc, noicapddme, noicapddcha": "Cục Cảnh Sát QLHC",
     "địa chỉ, nơi cư trú, thường trú, chỗ ở, địa chỉ liên hệ, địa chỉ trụ sở, nơi làm việc": "Tòa nhà Landmark 72, Phạm Hùng",
     "điện thoại, phone, số đt": "0987654321",
     "email, thư điện tử": "dungda@example.com",
-    "số lượng, bản sao": "1",
+    "số lượng, bản sao, capbansao": "1",
     "quyển số": "01",
     "nội dung yêu cầu, lý do, lý do chấm dứt, lĩnh vực, thời gian, thời điểm, tình trạng hồ sơ": "Thực hiện theo quy định của pháp luật",
     "giấy khai sinh bản sao, trích lục": "01 bản",
     "cơ quan đã đăng ký": "UBND Phường Cửa Nam",
-    "nơi sinh": "Bệnh viện Phụ sản Trung ương"
+    "nơi sinh, nksnoisinh, nksquequan, quê quán": "Bệnh viện Phụ sản Trung Ương",
+    "đọc ngày sinh, docngaysinh": "Ngày mười lăm tháng một năm một nghìn chín trăm chín mươi"
   },
   "date": {
-    "ngày cấp, năm cấp, cấp ngày": "2024-05-20",
-    "ngày sinh, năm sinh": "1990-01-15",
+    "ngày cấp, năm cấp, cấp ngày, ngaycap, ngaycapddc, ngaycapddme, ngaycapddcha": "2024-05-20",
+    "ngày sinh, năm sinh, ngaysinh, namsinh, ngaysinhchon, namsinhmeks, namsinhchaks": "1990-01-15",
     "ngày đăng ký": "2020-06-15",
     "ngày chết": "2020-01-01",
     "ngày, tháng, năm": "2024-05-20"
@@ -39,6 +40,7 @@
   },
   "checkbox": {
     "quan hệ, mối quan hệ, quanhe": "bản thân",
-    "nơi cư trú, cư trú, noicutru": "trong nước"
+    "nơi cư trú, cư trú, noicutru, nycnoicutru, menoicutru, chanoicutru": "trong nước",
+    "loại đăng ký, loaidangky": "đúng hạn"
   }
 }

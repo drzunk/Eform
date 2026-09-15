@@ -51,6 +51,9 @@ function fillElement(el, value) {
   if (changed) {
     el.dispatchEvent(new Event('change', { bubbles: true }));
     el.dispatchEvent(new Event('input', { bubbles: true }));
+    if (el.blur) el.blur();
+    // Dispatch Escape to close any autocomplete popovers triggered by typing
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true }));
     el.style.border = '2px solid #4CAF50';
     el.style.backgroundColor = '#e8f5e9';
   }
@@ -137,19 +140,33 @@ async function fillDropdown(trigger, dataValue, textValue) {
     if (textValue) {
       var tv = textValue.trim().toLowerCase();
       var tContent = el.textContent.trim().toLowerCase();
-      if (tContent.includes(tv) && el.children.length === 0) return true;
+      if (el.tagName === 'LI' && (tContent === tv || tContent.startsWith(tv))) return true;
+      if (tContent === tv) return true;
+      if (tContent.startsWith(tv) && el.children.length === 0) return true;
     }
     return false;
   });
 
   if (opt) {
-    opt.click();
+    var toClick = opt.closest('li') || opt;
+    console.log("[AUTOFILL] Found dropdown option:", toClick.textContent.trim());
+    toClick.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    toClick.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    toClick.click();
     await delay(500);
-    // Đảm bảo dropdown đã đóng
+    // Đảm bảo dropdown đã đóng bằng phím Escape
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true }));
+    var bd = document.querySelector('.MuiBackdrop-root, .MuiModal-backdrop, .MuiPopover-root');
+    if (bd) bd.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     document.body.click();
+    if (trigger.blur) trigger.blur();
     await delay(300);
     return true;
   } else {
+    console.log("[AUTOFILL] Dropdown option NOT found for:", textValue);
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true }));
+    var bd2 = document.querySelector('.MuiBackdrop-root, .MuiModal-backdrop, .MuiPopover-root');
+    if (bd2) bd2.dispatchEvent(new MouseEvent('click', { bubbles: true }));
     document.body.click();
     await delay(200);
     return false;
@@ -234,7 +251,11 @@ async function runAutoFill(config) {
       var rules = config.rules || {};
       
       if (rules.input) {
-        var textInputs = Array.from(document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=number], input:not([type]), textarea')).filter(function(e) { return e.offsetHeight > 0 && e.type !== 'hidden' && !done.has(e); });
+        var textInputs = Array.from(document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=number], input:not([type]), textarea')).filter(function(e) { 
+          return e.offsetHeight > 0 && e.type !== 'hidden' && !done.has(e) 
+                 && !e.closest('.input-field-select') && !e.closest('x-select-area')
+                 && !(e.placeholder && e.placeholder.toLowerCase().includes('tìm kiếm')); 
+        });
         var inputKeys = Object.keys(rules.input);
         for (var ik = 0; ik < inputKeys.length; ik++) {
           var kwStr = inputKeys[ik];
@@ -245,6 +266,7 @@ async function runAutoFill(config) {
             if (done.has(txtEl)) continue;
             var label = getFieldLabel(txtEl).toLowerCase();
             if (kws.some(function(kw) { return label.includes(kw) || (txtEl.name || '').toLowerCase().includes(kw); })) {
+                console.log('[AUTOFILL] Rule matched (input):', kwStr, '-> label:', label);
                 if (fillElement(txtEl, value)) { filledInPass++; done.add(txtEl); }
             }
           }
@@ -331,6 +353,10 @@ async function runAutoFill(config) {
             for (var di = 0; di < dropdowns.length; di++) {
                 var el = dropdowns[di];
                 if (done.has(el)) continue;
+                var isSelect = el.tagName === 'SELECT' || 
+                         el.classList.contains('input-field-select') || 
+                         (el.getAttribute('class') || '').includes('select') ||
+                         el.tagName.toLowerCase().includes('select');
                 var label = getFieldLabel(el).toLowerCase();
                 if (ddKws.some(function(kw) { return label.includes(kw); })) {
                     var success = await fillDropdown(el, null, String(valueToMatch));
@@ -343,10 +369,10 @@ async function runAutoFill(config) {
       totalFilled += filledInPass;
       console.log('[BROWSER] Auto Fill Pass ' + (p+1) + ': ' + filledInPass + ' fields filled.');
       if (filledInPass > 0) {
-          await delay(1500); // Đợi API load dropdown mới (nếu có)
       } else {
-          break; // Không điền thêm được gì thì thoát sớm
+          break;
       }
+      await delay(1000); // Đợi API load xong các field phụ thuộc (Quận/Huyện)
   }
 
   console.log('[BROWSER] Auto Fill v3.0: Done - ' + totalFilled + ' fields filled.');
