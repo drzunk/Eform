@@ -282,11 +282,29 @@ async function runAutoFill(config) {
       }
 
       if (rules.dropdown) {
-        var ddKeys = Object.keys(rules.dropdown);
+        // Sắp xếp dropdown theo thứ tự cascade: Tỉnh/TP → Quận/Huyện → Xã/Phường → còn lại
+        function getCascadePriority(kwStr) {
+          var kw = kwStr.toLowerCase();
+          if (kw.includes('tỉnh') || kw.includes('thành phố')) return 1;
+          if (kw.includes('quận') || kw.includes('huyện') || kw.includes('thị xã')) return 2;
+          if (kw.includes('phường') || kw.includes('xã') || kw.includes('thị trấn')) return 3;
+          return 0; // các loại khác điền trước
+        }
+        var ddKeys = Object.keys(rules.dropdown).sort(function(a, b) {
+          return getCascadePriority(a) - getCascadePriority(b);
+        });
+
+        var prevPriority = -1;
         for (var ddk = 0; ddk < ddKeys.length; ddk++) {
             var kwStr = ddKeys[ddk];
             var valueToMatch = rules.dropdown[kwStr];
             var ddKws = kwStr.split(',').map(function(k) { return k.trim().toLowerCase(); }).filter(Boolean);
+            var currPriority = getCascadePriority(kwStr);
+
+            // Nếu vừa điền Tỉnh (priority 1) và giờ chuyển sang Quận (priority 2),
+            // đợi thêm 1.5s để trang load dữ liệu phụ thuộc
+            if (prevPriority === 1 && currPriority === 2) await delay(1500);
+            if (prevPriority === 2 && currPriority === 3) await delay(1500);
             
             var dropdowns = document.querySelectorAll('.input-field-select');
             for (var di = 0; di < dropdowns.length; di++) {
@@ -295,7 +313,7 @@ async function runAutoFill(config) {
                 var label = getFieldLabel(el).toLowerCase();
                 if (ddKws.some(function(kw) { return label.includes(kw); })) {
                     var success = await fillDropdown(el, null, String(valueToMatch));
-                    if (success) { filledInPass++; done.add(el); }
+                    if (success) { filledInPass++; done.add(el); prevPriority = currPriority; }
                 }
             }
         }

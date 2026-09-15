@@ -1,40 +1,41 @@
 {
   "input": {
-    "họ tên, họ và tên, họ chữ đệm, họ tên người yêu cầu, người khai": "Đào Anh Dũng (Tự Động 100%)",
+    "họ tên, họ và tên, họ chữ đệm, họ tên người yêu cầu, người khai, tên tổ chức, tên cá nhân, đại diện, ký tên": "Đào Anh Dũng (Tự Động 100%)",
     "họ tên người được cấp, họ tên người được đăng ký, họ tên vợ, họ tên chồng": "Nguyễn Văn A",
     "họ tên cha": "Trần Văn Cha",
     "họ tên mẹ": "Lê Thị Mẹ",
-    "số định danh, cmnd, cccd, số giấy tờ, passport, hộ chiếu": "012345678999",
+    "số định danh, cmnd, cccd, số giấy tờ, passport, hộ chiếu, số giấy chứng nhận, số thẻ, mã số": "012345678999",
     "nơi cấp, cơ quan cấp": "Cục Cảnh Sát QLHC",
-    "địa chỉ, nơi cư trú, thường trú, chỗ ở, địa chỉ liên hệ": "Tòa nhà Landmark 72, Phạm Hùng",
+    "địa chỉ, nơi cư trú, thường trú, chỗ ở, địa chỉ liên hệ, địa chỉ trụ sở, nơi làm việc": "Tòa nhà Landmark 72, Phạm Hùng",
     "điện thoại, phone, số đt": "0987654321",
     "email, thư điện tử": "dungda@example.com",
     "số lượng, bản sao": "1",
     "quyển số": "01",
-    "nội dung yêu cầu, lý do": "Thực hiện theo quy định của pháp luật",
+    "nội dung yêu cầu, lý do, lý do chấm dứt, lĩnh vực, thời gian, thời điểm, tình trạng hồ sơ": "Thực hiện theo quy định của pháp luật",
     "giấy khai sinh bản sao, trích lục": "01 bản",
     "cơ quan đã đăng ký": "UBND Phường Cửa Nam",
     "nơi sinh": "Bệnh viện Phụ sản Trung ương"
   },
   "date": {
-    "ngày cấp, năm cấp": "2024-05-20",
+    "ngày cấp, năm cấp, cấp ngày": "2024-05-20",
     "ngày sinh, năm sinh": "1990-01-15",
     "ngày đăng ký": "2020-06-15",
-    "ngày chết": "2020-01-01"
+    "ngày chết": "2020-01-01",
+    "ngày, tháng, năm": "2024-05-20"
   },
   "dropdown": {
+    "kính gửi, cơ quan giải quyết, cơ quan tiếp nhận": "Thành phố Hà Nội",
     "giới tính": "Nam",
     "quốc tịch, quốc gia": "Việt Nam",
     "dân tộc": "Kinh",
     "loại giấy tờ, giấy tờ tùy thân": "Thẻ Căn cước",
-    "tỉnh, thành phố, thành phố trực thuộc tw": "Thành phố Hà Nội",
-    "quận, huyện, thị xã": "Quận Ba Đình",
-    "phường, xã, thị trấn": "Phường Cửa Nam",
     "loại cư trú": "Thường trú",
     "tình trạng hôn nhân": "Chưa kết hôn",
-    "kính gửi, cơ quan giải quyết, cơ quan tiếp nhận": "Thành phố Hà Nội",
     "phương thức nhận, hình thức nhận": "Trực tiếp",
-    "loại việc yêu cầu": "Bản sao"
+    "loại việc yêu cầu": "Bản sao",
+    "tỉnh, thành phố, thành phố trực thuộc tw": "Thành phố Hà Nội",
+    "quận, huyện, thị xã": "Quận Ba Đình",
+    "phường, xã, thị trấn": "Phường Cửa Nam"
   },
   "checkbox": {
     "quan hệ, mối quan hệ, quanhe": "bản thân",
