@@ -237,6 +237,30 @@ async function runAutoFill(config) {
   var done = new Set();
   var passes = 3;
 
+  var totalEligibleFields = 0;
+  var allInputs = document.querySelectorAll('input, select, textarea, .input-field-select');
+  for (var i = 0; i < allInputs.length; i++) {
+    var el = allInputs[i];
+    if (el.tagName === 'INPUT') {
+      if (el.type === 'hidden') continue;
+      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
+      if (el.placeholder && el.placeholder.toLowerCase().includes('tìm kiếm')) continue;
+      var inDD = el.closest('.input-field-select') || el.closest('x-select-area');
+      if (inDD && !el.name && !el.id) continue;
+      totalEligibleFields++;
+    } else if (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
+      totalEligibleFields++;
+    } else if (el.classList && el.classList.contains('input-field-select')) {
+      if (el.offsetHeight === 0) continue;
+      totalEligibleFields++;
+    }
+  }
+
+  try {
+      chrome.runtime.sendMessage({ action: 'reportTotal', total: totalEligibleFields });
+  } catch (e) {}
+
   for (var p = 0; p < passes; p++) {
       var filledInPass = 0;
 
@@ -431,26 +455,6 @@ async function runAutoFill(config) {
           break;
       }
       await delay(1000); // Đợi API load xong các field phụ thuộc (Quận/Huyện)
-  }
-
-  var totalEligibleFields = 0;
-  var allInputs = document.querySelectorAll('input, select, textarea, .input-field-select');
-  for (var i = 0; i < allInputs.length; i++) {
-    var el = allInputs[i];
-    if (el.tagName === 'INPUT') {
-      if (el.type === 'hidden') continue;
-      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
-      if (el.placeholder && el.placeholder.toLowerCase().includes('tìm kiếm')) continue;
-      var inDD = el.closest('.input-field-select') || el.closest('x-select-area');
-      if (inDD && !el.name && !el.id) continue;
-      totalEligibleFields++;
-    } else if (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
-      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
-      totalEligibleFields++;
-    } else if (el.classList && el.classList.contains('input-field-select')) {
-      if (el.offsetHeight === 0) continue;
-      totalEligibleFields++;
-    }
   }
 
   console.log('[BROWSER] Auto Fill v3.0: Done - ' + totalFilled + '/' + totalEligibleFields + ' fields filled.');

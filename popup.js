@@ -14,9 +14,12 @@ let totalFields = 0;
 let framesReported = 0;
 
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  if (req.action === 'reportTotal') {
+    totalFields += (req.total || 0);
+    statusDiv.textContent = `Đang nhập dữ liệu... (${totalFilled}/${totalFields})`;
+  }
   if (req.action === 'reportFilled') {
     totalFilled += (req.count || 0);
-    totalFields += (req.total || 0);
     framesReported++;
     statusDiv.textContent = `Đang nhập dữ liệu... (${totalFilled}/${totalFields})`;
   }
@@ -63,10 +66,10 @@ document.getElementById('fillBtn').addEventListener('click', async () => {
         }
     });
     
-    // Timeout an toàn sau 5s để chốt kết quả và dừng spinner
+    // Timeout an toàn sau 20s để chốt kết quả và dừng spinner
     setTimeout(() => {
         showStatus(`Hoàn tất! Đã điền ${totalFilled}/${totalFields} trường.`, false);
-    }, 5000);
+    }, 20000);
     
   } catch (error) {
     showStatus(`Lỗi: ${error.message}`, true);
