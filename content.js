@@ -5,6 +5,24 @@
 
 function delay(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
 
+// ===== REMOVE VIETNAMESE DIACRITICS =====
+// Chuẩn hóa "Địa Chỉ" → "dia chi", "Họ và Tên" → "ho va ten"
+function removeVN(str) {
+  if (!str) return '';
+  return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// So khớp thông minh: cả tiếng Việt có dấu lẫn không dấu
+function smartMatch(haystack, needle) {
+  var h = haystack.toLowerCase();
+  var n = needle.toLowerCase();
+  // Thử khớp nguyên bản trước
+  if (h.includes(n)) return true;
+  // Thử khớp sau khi bỏ dấu
+  if (removeVN(h).includes(removeVN(n))) return true;
+  return false;
+}
+
 // ===== FILL ELEMENT =====
 function fillElement(el, value) {
   var nameId = ((el.name || '') + ' ' + (el.id || '')).toLowerCase();
@@ -140,8 +158,8 @@ async function fillDropdown(trigger, dataValue, textValue) {
     if (textValue) {
       var tv = textValue.trim().toLowerCase();
       var tContent = el.textContent.trim().toLowerCase();
-      if (el.tagName === 'LI' && (tContent === tv || tContent.startsWith(tv))) return true;
-      if (tContent === tv) return true;
+      if (el.tagName === 'LI' && (tContent === tv || tContent.startsWith(tv) || smartMatch(tContent, tv))) return true;
+      if (tContent === tv || smartMatch(tContent, tv) && el.children.length === 0) return true;
       if (tContent.startsWith(tv) && el.children.length === 0) return true;
     }
     return false;
@@ -227,6 +245,8 @@ async function runAutoFill(config) {
         var flatData = flattenDataAndAlias(config.data, config.aliases || {}, '');
         for (var di = 0; di < flatData.length; di++) {
           var item = flatData[di];
+          if (item.value === null || item.value === undefined || item.value === '') continue;
+          
           var cssNames = item.names.filter(function(n) { return /^[a-zA-Z0-9_\-\[\].]+$/.test(n) && n.length >= 4; });
           if (cssNames.length === 0) continue;
           var selParts = [];
@@ -239,9 +259,27 @@ async function runAutoFill(config) {
             selParts.push('textarea[id*="' + n + '" i]');
           });
           try {
-            var els = Array.from(document.querySelectorAll(selParts.join(', '))).filter(function(e) { return e.type !== 'hidden' && !done.has(e); });
+            // Bao gồm cả hidden input nếu nó thuộc về một custom dropdown
+            var els = Array.from(document.querySelectorAll(selParts.join(', '))).filter(function(e) { 
+                if (done.has(e)) return false;
+                if (e.type === 'hidden') {
+                    // Check if it's inside a MUI dropdown
+                    return !!(e.closest('.input-field-select') || e.closest('x-select-area'));
+                }
+                return true;
+            });
             for (var ei = 0; ei < els.length; ei++) {
-              if (fillElement(els[ei], item.value)) { filledInPass++; done.add(els[ei]); }
+              var el = els[ei];
+              var ddContainer = el.closest('.input-field-select') || el.closest('x-select-area');
+              
+              if (el.type === 'hidden' && ddContainer) {
+                  // Custom dropdown, click nó và match theo dataValue
+                  var success = await fillDropdown(ddContainer, item.value, null);
+                  if (success) { filledInPass++; done.add(el); done.add(ddContainer); }
+              } else {
+                  // Element thường
+                  if (fillElement(el, item.value)) { filledInPass++; done.add(el); }
+              }
             }
           } catch (e) {console.error(e);}
         }
@@ -252,9 +290,14 @@ async function runAutoFill(config) {
       
       if (rules.input) {
         var textInputs = Array.from(document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=number], input:not([type]), textarea')).filter(function(e) { 
-          return e.offsetHeight > 0 && e.type !== 'hidden' && !done.has(e) 
-                 && !e.closest('.input-field-select') && !e.closest('x-select-area')
-                 && !(e.placeholder && e.placeholder.toLowerCase().includes('tìm kiếm')); 
+          // Bỏ qua: hidden, đã xử lý, ô search của dropdown
+          if (e.offsetHeight === 0 || e.type === 'hidden' || done.has(e)) return false;
+          if (e.placeholder && e.placeholder.toLowerCase().includes('tìm kiếm')) return false;
+          // Chỉ loại bỏ input NẰM BÊN TRONG container dropdown (.input-field-select)
+          // mà KHÔNG có name/id riêng (những input có name/id là field thực sự)
+          var inDD = e.closest('.input-field-select') || e.closest('x-select-area');
+          if (inDD && !e.name && !e.id) return false;
+          return true;
         });
         var inputKeys = Object.keys(rules.input);
         for (var ik = 0; ik < inputKeys.length; ik++) {
@@ -265,7 +308,7 @@ async function runAutoFill(config) {
             var txtEl = textInputs[ti];
             if (done.has(txtEl)) continue;
             var label = getFieldLabel(txtEl).toLowerCase();
-            if (kws.some(function(kw) { return label.includes(kw) || (txtEl.name || '').toLowerCase().includes(kw); })) {
+            if (kws.some(function(kw) { return smartMatch(label, kw) || smartMatch(txtEl.name || '', kw) || smartMatch(txtEl.id || '', kw); })) {
                 console.log('[AUTOFILL] Rule matched (input):', kwStr, '-> label:', label);
                 if (fillElement(txtEl, value)) { filledInPass++; done.add(txtEl); }
             }
@@ -284,7 +327,7 @@ async function runAutoFill(config) {
             var dtEl = dateInputs[ti];
             if (done.has(dtEl)) continue;
             var label = getFieldLabel(dtEl).toLowerCase();
-            if (kws.some(function(kw) { return label.includes(kw) || (dtEl.name || '').toLowerCase().includes(kw); })) {
+            if (kws.some(function(kw) { return smartMatch(label, kw) || smartMatch(dtEl.name || '', kw) || smartMatch(dtEl.id || '', kw); })) {
                 if (fillElement(dtEl, value)) { filledInPass++; done.add(dtEl); }
             }
           }
@@ -314,7 +357,7 @@ async function runAutoFill(config) {
             var groupLabel = getFieldLabel(chk).toLowerCase();
             var optionLabel = getOptionLabel(chk);
             var val = (chk.value || '').toLowerCase();
-            if (kws.some(function(kw) { return groupLabel.includes(kw) || (chk.name || '').toLowerCase().includes(kw); })) {
+            if (kws.some(function(kw) { return smartMatch(groupLabel, kw) || smartMatch(chk.name || '', kw) || smartMatch(chk.id || '', kw); })) {
                 var vMatch = String(valueToMatch).toLowerCase();
                 if (valueToMatch === true || optionLabel.includes(vMatch) || val === vMatch) {
                     if (fillElement(chk, true)) { filledInPass++; done.add(chk); }
@@ -358,7 +401,7 @@ async function runAutoFill(config) {
                          (el.getAttribute('class') || '').includes('select') ||
                          el.tagName.toLowerCase().includes('select');
                 var label = getFieldLabel(el).toLowerCase();
-                if (ddKws.some(function(kw) { return label.includes(kw); })) {
+                if (ddKws.some(function(kw) { return smartMatch(label, kw); })) {
                     var success = await fillDropdown(el, null, String(valueToMatch));
                     if (success) { filledInPass++; done.add(el); prevPriority = currPriority; }
                 }

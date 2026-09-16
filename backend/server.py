@@ -16,6 +16,12 @@ def get_form_data():
     if os.path.exists(rules_path):
         with open(rules_path, 'r', encoding='utf-8') as f:
             result['rules'] = json.load(f)
+            
+    # 1.5. Luôn luôn load default_data.json (data mặc định chính xác theo tên biến)
+    default_data_path = os.path.join(DATA_DIR, 'default_data.json')
+    if os.path.exists(default_data_path):
+        with open(default_data_path, 'r', encoding='utf-8') as f:
+            result['data'] = json.load(f)
 
     # 2. Nếu form có config riêng (preActions, data cụ thể) thì merge thêm
     if form_id:
