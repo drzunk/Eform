@@ -9,11 +9,24 @@ function showStatus(msg, isError) {
   fillBtn.disabled = false;
 }
 
+let totalFilled = 0;
+let framesReported = 0;
+
+chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
+  if (req.action === 'reportFilled') {
+    totalFilled += req.count;
+    framesReported++;
+    showStatus(`Hoàn tất! Đã điền ${totalFilled} trường. (từ ${framesReported} khung)`, false);
+  }
+});
+
 document.getElementById('fillBtn').addEventListener('click', async () => {
   fillBtn.disabled = true;
   loader.style.display = "block";
   statusDiv.textContent = "Đang kết nối Backend...";
   statusDiv.style.color = "#555";
+  totalFilled = 0;
+  framesReported = 0;
   
   try {
     let [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -35,14 +48,22 @@ document.getElementById('fillBtn').addEventListener('click', async () => {
     
     statusDiv.textContent = "Đã lấy cấu hình thành công! Đang điền...";
     
-    // Gửi cấu hình xuống content script để điền form
+    // Gửi cấu hình xuống content script để điền form (Gửi broadcast tới tất cả các frames)
     chrome.tabs.sendMessage(tab.id, { action: "fillForm", config: config }, function(res) {
       if (chrome.runtime.lastError) {
-        showStatus("Lỗi kết nối trang web. Hãy thử tải lại trang web này (F5).", true);
-      } else {
-        showStatus(`Hoàn tất! Đã điền ${res.filled} trường.`, false);
+        if (framesReported === 0) {
+            showStatus("Lỗi kết nối trang web. Hãy thử tải lại trang web này (F5).", true);
+        }
       }
     });
+    
+    // Timeout an toàn sau 10s nếu không frame nào báo cáo
+    setTimeout(() => {
+        if (framesReported === 0) {
+            showStatus(`Hoàn tất! Đã điền 0 trường.`, false);
+        }
+    }, 10000);
+    
   } catch (error) {
     showStatus(`Lỗi: ${error.message}`, true);
   }

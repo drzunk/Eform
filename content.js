@@ -386,6 +386,8 @@ async function runAutoFill(config) {
 chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
   if (req.action === 'fillForm') {
     runAutoFill(req.config || {}).then(filled => {
+      // Send message to popup to accumulate count across all frames
+      try { chrome.runtime.sendMessage({ action: 'reportFilled', count: filled }); } catch(e) {}
       sendResponse({ status: 'Success', filled: filled });
     });
     return true;
