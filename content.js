@@ -418,20 +418,36 @@ async function runAutoFill(config) {
       await delay(1000); // Đợi API load xong các field phụ thuộc (Quận/Huyện)
   }
 
-  console.log('[BROWSER] Auto Fill v3.0: Done - ' + totalFilled + ' fields filled.');
-  if (document.getElementById('__bs_notify__')) {
-      var ev = new CustomEvent('__bs_notify__', { detail: { msg: 'Đã điền tự động: ' + totalFilled + ' trường!', type: 'success' }});
-      window.dispatchEvent(ev);
+  var totalEligibleFields = 0;
+  var allInputs = document.querySelectorAll('input, select, textarea, .input-field-select');
+  for (var i = 0; i < allInputs.length; i++) {
+    var el = allInputs[i];
+    if (el.tagName === 'INPUT') {
+      if (el.type === 'hidden') continue;
+      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
+      if (el.placeholder && el.placeholder.toLowerCase().includes('tìm kiếm')) continue;
+      var inDD = el.closest('.input-field-select') || el.closest('x-select-area');
+      if (inDD && !el.name && !el.id) continue;
+      totalEligibleFields++;
+    } else if (el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+      if (el.offsetHeight === 0 && el.offsetWidth === 0) continue;
+      totalEligibleFields++;
+    } else if (el.classList && el.classList.contains('input-field-select')) {
+      if (el.offsetHeight === 0) continue;
+      totalEligibleFields++;
+    }
   }
-  return totalFilled;
+
+  console.log('[BROWSER] Auto Fill v3.0: Done - ' + totalFilled + '/' + totalEligibleFields + ' fields filled.');
+  return { filled: totalFilled, total: totalEligibleFields };
 }
 
 chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
   if (req.action === 'fillForm') {
-    runAutoFill(req.config || {}).then(filled => {
+    runAutoFill(req.config || {}).then(res => {
       // Send message to popup to accumulate count across all frames
-      try { chrome.runtime.sendMessage({ action: 'reportFilled', count: filled }); } catch(e) {}
-      sendResponse({ status: 'Success', filled: filled });
+      try { chrome.runtime.sendMessage({ action: 'reportFilled', count: res.filled, total: res.total }); } catch(e) {}
+      sendResponse({ status: 'Success', filled: res.filled, total: res.total });
     });
     return true;
   }
@@ -441,6 +457,6 @@ chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
 window.addEventListener('__TEST_AUTOFILL_WITH_CONFIG__', async function(e) {
   console.log('[BROWSER] [TEST] Triggering autofill with injected config');
   const config = e.detail;
-  const filledCount = await runAutoFill(config);
-  window.dispatchEvent(new CustomEvent('__AUTOFILL_DONE__', { detail: filledCount }));
+  const res = await runAutoFill(config);
+  window.dispatchEvent(new CustomEvent('__AUTOFILL_DONE__', { detail: res.filled }));
 });

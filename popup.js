@@ -10,13 +10,15 @@ function showStatus(msg, isError) {
 }
 
 let totalFilled = 0;
+let totalFields = 0;
 let framesReported = 0;
 
 chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
   if (req.action === 'reportFilled') {
-    totalFilled += req.count;
+    totalFilled += (req.count || 0);
+    totalFields += (req.total || 0);
     framesReported++;
-    showStatus(`Hoàn tất! Đã điền ${totalFilled} trường. (từ ${framesReported} khung)`, false);
+    showStatus(`Hoàn tất! Đã điền ${totalFilled}/${totalFields} trường. (từ ${framesReported} khung)`, false);
   }
 });
 
@@ -26,6 +28,7 @@ document.getElementById('fillBtn').addEventListener('click', async () => {
   statusDiv.textContent = "Đang kết nối Backend...";
   statusDiv.style.color = "#555";
   totalFilled = 0;
+  totalFields = 0;
   framesReported = 0;
   
   try {
