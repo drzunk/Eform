@@ -18,7 +18,7 @@ chrome.runtime.onMessage.addListener((req, sender, sendResponse) => {
     totalFilled += (req.count || 0);
     totalFields += (req.total || 0);
     framesReported++;
-    showStatus(`Hoàn tất! Đã điền ${totalFilled}/${totalFields} trường. (từ ${framesReported} khung)`, false);
+    statusDiv.textContent = `Đang nhập dữ liệu... (${totalFilled}/${totalFields})`;
   }
 });
 
@@ -49,23 +49,24 @@ document.getElementById('fillBtn').addEventListener('click', async () => {
       throw new Error(config.error);
     }
     
-    statusDiv.textContent = "Đã lấy cấu hình thành công! Đang điền...";
+    statusDiv.textContent = "Đang nhập dữ liệu...";
     
-    // Gửi cấu hình xuống content script để điền form (Gửi broadcast tới tất cả các frames)
-    chrome.tabs.sendMessage(tab.id, { action: "fillForm", config: config }, function(res) {
-      if (chrome.runtime.lastError) {
-        if (framesReported === 0) {
-            showStatus("Lỗi kết nối trang web. Hãy thử tải lại trang web này (F5).", true);
+    // Gửi cấu hình xuống tất cả frames trong tab
+    chrome.webNavigation.getAllFrames({ tabId: tab.id }, (frames) => {
+        if (frames && frames.length > 0) {
+            frames.forEach(frame => {
+                chrome.tabs.sendMessage(tab.id, { action: "fillForm", config: config }, { frameId: frame.frameId });
+            });
+        } else {
+            // Fallback nếu không có quyền webNavigation
+            chrome.tabs.sendMessage(tab.id, { action: "fillForm", config: config });
         }
-      }
     });
     
-    // Timeout an toàn sau 10s nếu không frame nào báo cáo
+    // Timeout an toàn sau 5s để chốt kết quả và dừng spinner
     setTimeout(() => {
-        if (framesReported === 0) {
-            showStatus(`Hoàn tất! Đã điền 0 trường.`, false);
-        }
-    }, 10000);
+        showStatus(`Hoàn tất! Đã điền ${totalFilled}/${totalFields} trường.`, false);
+    }, 5000);
     
   } catch (error) {
     showStatus(`Lỗi: ${error.message}`, true);

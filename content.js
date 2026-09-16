@@ -97,22 +97,24 @@ function getFieldLabel(el) {
     var parent = node.parentElement;
     if (!parent || parent.tagName === 'BODY') break;
 
+    var addedText = false;
     for (var i = 0; i < parent.childNodes.length; i++) {
       var child = parent.childNodes[i];
       if (child === node || (child.contains && child.contains(node))) break;
       if (child.nodeType === 3) {
         var t = child.textContent.trim();
-        if (t) parts.push(t);
+        if (t && t.length > 1) { parts.push(t); addedText = true; }
       } else if (child.nodeType === 1) {
-        if (!child.querySelector || !child.querySelector('input, select, textarea, .input-field-select')) {
+        if (!child.querySelector || !child.querySelector('input, select, textarea, .input-field-select, x-select-area')) {
           var t = (child.textContent || '').trim();
-          if (t && t.length < 200) parts.push(t);
+          if (t && t.length > 1 && t.length < 200) { parts.push(t); addedText = true; }
         }
       }
     }
     
+    if (addedText) break;
     var ps = parent.previousElementSibling;
-    if (ps && (!ps.querySelector || !ps.querySelector('input, select, textarea, .input-field-select'))) {
+    if (ps && (!ps.querySelector || !ps.querySelector('input, select, textarea, .input-field-select, x-select-area'))) {
       var t = (ps.textContent || '').trim();
       if (t && t.length < 200) parts.push(t);
     }
@@ -148,7 +150,16 @@ async function fillDropdown(trigger, dataValue, textValue) {
   trigger.click();
   await delay(800);
 
-  var all = Array.from(document.querySelectorAll('li, span, div, p, option'));
+  var popupList = Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-paper, [role="presentation"], [role="listbox"], .menu, .dropdown-menu, .dropdown-content'));
+  var popup = popupList.reverse().find(function(p) { return p.offsetHeight > 0; });
+  
+  var all = [];
+  if (popup) {
+      all = Array.from(popup.querySelectorAll('li, span, div, option'));
+  } else {
+      all = Array.from(document.querySelectorAll('li[role="option"], option'));
+  }
+  
   var opt = all.reverse().find(function(el) {
     if (el.offsetHeight === 0) return false;
     if (dataValue) {
@@ -158,9 +169,11 @@ async function fillDropdown(trigger, dataValue, textValue) {
     if (textValue) {
       var tv = textValue.trim().toLowerCase();
       var tContent = el.textContent.trim().toLowerCase();
-      if (el.tagName === 'LI' && (tContent === tv || tContent.startsWith(tv) || smartMatch(tContent, tv))) return true;
-      if (tContent === tv || smartMatch(tContent, tv) && el.children.length === 0) return true;
-      if (tContent.startsWith(tv) && el.children.length === 0) return true;
+      
+      if (tContent === tv) return true;
+      if (el.tagName === 'LI' || el.tagName === 'OPTION' || el.getAttribute('role') === 'option') {
+          if (tContent.startsWith(tv) || smartMatch(tContent, tv)) return true;
+      }
     }
     return false;
   });
@@ -251,12 +264,12 @@ async function runAutoFill(config) {
           if (cssNames.length === 0) continue;
           var selParts = [];
           cssNames.forEach(function(n) {
-            selParts.push('input[name*="' + n + '" i]');
-            selParts.push('input[id*="' + n + '" i]');
-            selParts.push('select[name*="' + n + '" i]');
-            selParts.push('select[id*="' + n + '" i]');
-            selParts.push('textarea[name*="' + n + '" i]');
-            selParts.push('textarea[id*="' + n + '" i]');
+            selParts.push('input[name="' + n + '" i]');
+            selParts.push('input[id="' + n + '" i]');
+            selParts.push('select[name="' + n + '" i]');
+            selParts.push('select[id="' + n + '" i]');
+            selParts.push('textarea[name="' + n + '" i]');
+            selParts.push('textarea[id="' + n + '" i]');
           });
           try {
             // Bao gồm cả hidden input nếu nó thuộc về một custom dropdown
@@ -402,8 +415,10 @@ async function runAutoFill(config) {
                          el.tagName.toLowerCase().includes('select');
                 var label = getFieldLabel(el).toLowerCase();
                 if (ddKws.some(function(kw) { return smartMatch(label, kw); })) {
+                    console.log('[AUTOFILL] Dropdown Rule matched: ' + kwStr + ' -> label: ' + label + ' -> trying to fill: ' + valueToMatch);
                     var success = await fillDropdown(el, null, String(valueToMatch));
                     if (success) { filledInPass++; done.add(el); prevPriority = currPriority; }
+                    else { console.log('[AUTOFILL] Dropdown fill failed for: ' + valueToMatch); }
                 }
             }
         }
@@ -445,8 +460,10 @@ async function runAutoFill(config) {
 chrome.runtime.onMessage.addListener(function(req, sender, sendResponse) {
   if (req.action === 'fillForm') {
     runAutoFill(req.config || {}).then(res => {
-      // Send message to popup to accumulate count across all frames
-      try { chrome.runtime.sendMessage({ action: 'reportFilled', count: res.filled, total: res.total }); } catch(e) {}
+      // Chỉ report nếu frame này có chứa field, tránh việc iframe rỗng báo cáo làm dừng popup quá sớm
+      if (res.total > 0) {
+        try { chrome.runtime.sendMessage({ action: 'reportFilled', count: res.filled, total: res.total }); } catch(e) {}
+      }
       sendResponse({ status: 'Success', filled: res.filled, total: res.total });
     });
     return true;
