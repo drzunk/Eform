@@ -44,26 +44,31 @@ function fillElement(el, value) {
     var opt = Array.from(el.options).find(function(o) {
       return o.value === String(finalValue) || o.text.trim().toLowerCase() === String(finalValue).toLowerCase() || smartMatch(o.text, String(finalValue));
     });
-    if (opt) { el.value = opt.value; changed = true; }
+    if (opt && el.value !== opt.value) { 
+        el.value = opt.value; 
+        changed = true; 
+    }
   } else if (el.type === 'checkbox' || el.type === 'radio') {
-    if (String(el.value) === String(finalValue) || finalValue === true) {
+    if (String(el.value) === String(finalValue) || finalValue === true || String(finalValue).toLowerCase() === 'true') {
       if (!el.checked) {
           el.click();
           if (!el.checked && el.parentElement && el.parentElement.tagName === 'LABEL') {
               el.parentElement.click();
           }
+          changed = true;
       }
-      changed = true;
     }
   } else {
-    var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-    var nativeTextAreaSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
-    var setter = el.tagName === 'TEXTAREA' ? nativeTextAreaSetter : nativeInputValueSetter;
-    
-    if (setter) setter.call(el, finalValue);
-    else el.value = finalValue;
-    
-    changed = true;
+    if (String(el.value) !== String(finalValue)) {
+        var nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+        var nativeTextAreaSetter = Object.getOwnPropertyDescriptor(window.HTMLTextAreaElement.prototype, 'value').set;
+        var setter = el.tagName === 'TEXTAREA' ? nativeTextAreaSetter : nativeInputValueSetter;
+        
+        if (setter) setter.call(el, finalValue);
+        else el.value = finalValue;
+        
+        changed = true;
+    }
   }
 
   if (changed) {
@@ -470,6 +475,14 @@ async function runAutoFill(config) {
                 var label = getFieldLabel(el).toLowerCase();
                 
                 if (ddKws.some(function(kw) { return smartMatch(label, kw); })) {
+                    // Chống lặp vô hạn nếu React re-render: kiểm tra xem dropdown đã có giá trị chưa
+                    var currentText = el.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
+                    var tv = String(valueToMatch).trim().toLowerCase();
+                    if (!isSelect && (currentText === tv || currentText.includes(tv) || smartMatch(currentText, tv))) {
+                        done.add(el);
+                        continue;
+                    }
+
                     console.log('[AUTOFILL] Dropdown Rule matched: ' + kwStr + ' -> label: ' + label + ' -> trying to fill: ' + valueToMatch);
                     var success = false;
                     if (isSelect) {
