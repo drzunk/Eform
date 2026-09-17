@@ -157,6 +157,10 @@ async function fillDropdown(trigger, dataValue, textValue) {
       var allContainers = Array.from(document.querySelectorAll('div, ul, section'));
       popup = allContainers.reverse().find(function(d) {
           if (d.offsetHeight === 0) return false;
+          // Ignore if it's obviously a sidebar, drawer or navbar
+          var cn = d.className || "";
+          if (typeof cn === 'string' && (cn.toLowerCase().indexOf('drawer') > -1 || cn.toLowerCase().indexOf('sidebar') > -1 || cn.toLowerCase().indexOf('nav') > -1)) return false;
+          
           var s = window.getComputedStyle(d);
           return (s.position === 'absolute' || s.position === 'fixed') && parseInt(s.zIndex || 0) > 10;
       });
