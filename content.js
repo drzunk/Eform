@@ -150,13 +150,26 @@ async function fillDropdown(trigger, dataValue, textValue) {
   trigger.click();
   await delay(800);
 
-  var popupList = Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-paper, [role="presentation"], [role="listbox"], .menu, .dropdown-menu, .dropdown-content'));
-  var popup = popupList.reverse().find(function(p) { return p.offsetHeight > 0; });
+  var popupList = Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-paper, [role="presentation"], [role="listbox"], .menu, .dropdown-menu, .dropdown-content, .select2-dropdown, .ant-select-dropdown, .el-select-dropdown, .vs__dropdown-menu, .p-dropdown-panel, .popup'));
+  var popup = popupList.reverse().find(function(p) { return p.offsetHeight > 0 || (p.style && p.style.display !== 'none'); });
+  
+  if (!popup) {
+      var allContainers = Array.from(document.querySelectorAll('div, ul, section'));
+      popup = allContainers.reverse().find(function(d) {
+          if (d.offsetHeight === 0) return false;
+          var s = window.getComputedStyle(d);
+          return (s.position === 'absolute' || s.position === 'fixed') && parseInt(s.zIndex || 0) > 10;
+      });
+  }
   
   var all = [];
   if (popup) {
       all = Array.from(popup.querySelectorAll('li, span, div, option'));
-  } else {
+  } else if (wrapper) {
+      all = Array.from(wrapper.querySelectorAll('li, option, div.item, span.item'));
+  }
+  
+  if (all.length === 0) {
       all = Array.from(document.querySelectorAll('li[role="option"], option'));
   }
   
@@ -194,7 +207,11 @@ async function fillDropdown(trigger, dataValue, textValue) {
     await delay(300);
     return true;
   } else {
-    console.log("[AUTOFILL] Dropdown option NOT found for:", textValue);
+    if (wrapper) wrapper.click();
+    document.body.click(); // Close others
+    document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+    document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+    console.log('[BROWSER] [AUTOFILL] Dropdown option NOT found for: ' + textValue);
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', code: 'Escape', keyCode: 27, bubbles: true }));
     var bd2 = document.querySelector('.MuiBackdrop-root, .MuiModal-backdrop, .MuiPopover-root');
     if (bd2) bd2.dispatchEvent(new MouseEvent('click', { bubbles: true }));
