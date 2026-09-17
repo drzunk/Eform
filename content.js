@@ -42,7 +42,7 @@ function fillElement(el, value) {
   var changed = false;
   if (el.tagName === 'SELECT') {
     var opt = Array.from(el.options).find(function(o) {
-      return o.value === String(finalValue) || o.text.trim() === String(finalValue);
+      return o.value === String(finalValue) || o.text.trim().toLowerCase() === String(finalValue).toLowerCase() || smartMatch(o.text, String(finalValue));
     });
     if (opt) { el.value = opt.value; changed = true; }
   } else if (el.type === 'checkbox' || el.type === 'radio') {
@@ -192,11 +192,10 @@ async function fillDropdown(trigger, dataValue, textValue) {
     }
     if (textValue) {
       var tv = textValue.trim().toLowerCase();
-      var tContent = el.textContent.trim().toLowerCase();
+      var tContent = el.textContent.replace(/\s+/g, ' ').trim().toLowerCase();
       
-      if (tContent === tv) return true;
-      if (el.tagName === 'LI' || el.tagName === 'OPTION' || el.getAttribute('role') === 'option') {
-          if (tContent.startsWith(tv) || smartMatch(tContent, tv)) return true;
+      if (tContent === tv || tContent.startsWith(tv) || smartMatch(tContent, tv)) {
+          return true;
       }
     }
     return false;
@@ -457,20 +456,33 @@ async function runAutoFill(config) {
             if (prevPriority === 1 && currPriority === 2) await delay(1500);
             if (prevPriority === 2 && currPriority === 3) await delay(1500);
             
-            var dropdowns = document.querySelectorAll('select, .input-field-select, x-select-area, .MuiSelect-root, .MuiSelect-select');
-            for (var di = 0; di < dropdowns.length; di++) {
+            var getDropdowns = () => Array.from(document.querySelectorAll('select, .input-field-select, x-select-area, .MuiSelect-root, .MuiSelect-select'));
+            var ddCount = getDropdowns().length;
+            for (var di = 0; di < ddCount; di++) {
+                var dropdowns = getDropdowns();
+                if (di >= dropdowns.length) break;
                 var el = dropdowns[di];
+                
                 if (done.has(el)) continue;
-                var isSelect = el.tagName === 'SELECT' || 
-                         el.classList.contains('input-field-select') || 
-                         (el.getAttribute('class') || '').includes('select') ||
-                         el.tagName.toLowerCase().includes('select');
+                var isSelect = el.tagName === 'SELECT';
                 var label = getFieldLabel(el).toLowerCase();
+                
                 if (ddKws.some(function(kw) { return smartMatch(label, kw); })) {
                     console.log('[AUTOFILL] Dropdown Rule matched: ' + kwStr + ' -> label: ' + label + ' -> trying to fill: ' + valueToMatch);
-                    var success = await fillDropdown(el, null, String(valueToMatch));
-                    if (success) { filledInPass++; done.add(el); prevPriority = currPriority; }
-                    else { console.log('[AUTOFILL] Dropdown fill failed for: ' + valueToMatch); }
+                    var success = false;
+                    if (isSelect) {
+                        success = fillElement(el, valueToMatch);
+                    } else {
+                        success = await fillDropdown(el, null, String(valueToMatch));
+                    }
+                    
+                    if (success) { 
+                        filledInPass++; 
+                        done.add(el); 
+                        prevPriority = currPriority; 
+                    } else { 
+                        console.log('[AUTOFILL] Dropdown fill failed for: ' + valueToMatch); 
+                    }
                 }
             }
         }
