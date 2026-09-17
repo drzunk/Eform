@@ -151,9 +151,11 @@ async function fillDropdown(trigger, dataValue, textValue) {
   // Click specifically on the arrow or input if it's a custom dropdown to ensure it opens
   var innerArrow = trigger.querySelector('.arrow, .MuiSelect-icon');
   var innerInput = trigger.querySelector('input[type="text"]:not([hidden])');
-  if (innerArrow) { innerArrow.click(); }
-  else if (innerInput) { innerInput.click(); }
-  else { trigger.click(); }
+  var toClick = innerArrow || innerInput || trigger;
+  
+  toClick.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+  toClick.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+  toClick.click();
   
   await delay(800);
 
