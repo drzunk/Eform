@@ -22,7 +22,8 @@
     "nghề nghiệp, nghenghiep": "Kỹ sư CNTT",
     "nơi đăng ký thường trú, noidangkythuongtru": "Phường Cửa Nam, Quận Hoàn Kiếm, TP Hà Nội",
     "tên bên nam, tên bên nữ, hovatennam, hovatennu": "Đào Anh Dũng",
-    "quan hệ với người, quanhevoinguoi": "Bản thân"
+    "quan hệ với người, quanhevoinguoi": "Bản thân",
+    "kết hôn lần thứ mấy, kethonlanthumay": "1"
   },
   "date": {
     "ngày cấp, năm cấp, cấp ngày, ngaycap, ngaycapddc, ngaycapddme, ngaycapddcha": "2024-05-20",
@@ -38,7 +39,7 @@
     "dân tộc, dantoc": "Kinh",
     "loại giấy tờ, giấy tờ tùy thân, loaigiayto": "Thẻ Căn cước",
     "loại cư trú, loaicutru": "Thường trú",
-    "tình trạng hôn nhân, tinhtranghonnhan": "Chưa kết hôn",
+    "tình trạng hôn nhân, tinhtranghonnhan": "Chưa",
     "phương thức nhận, hình thức nhận, phuongthucnhan": "Trực tiếp",
     "loại việc yêu cầu": "Bản sao",
     "mục đích, mucdich": "Đăng ký kết hôn",
@@ -49,6 +50,8 @@
   "checkbox": {
     "quan hệ, mối quan hệ, quanhe": "bản thân",
     "nơi cư trú, cư trú, noicutru, nycnoicutru, menoicutru, chanoicutru": "trong nước",
-    "loại đăng ký, loaidangky": "đúng hạn"
+    "loại đăng ký, loaidangky": "đúng hạn",
+    "đăng ký lần đầu, dangkylandau": true,
+    "đề nghị cấp bản sao, denghicapbansao": "Có"
   }
 }
