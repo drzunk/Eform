@@ -176,8 +176,8 @@ async function fillDropdown(trigger, dataValue, textValue) {
   var all = [];
   if (popup) {
       all = Array.from(popup.querySelectorAll('li, span, div, option'));
-  } else if (wrapper) {
-      all = Array.from(wrapper.querySelectorAll('li, option, div.item, span.item'));
+  } else if (trigger) {
+      all = Array.from(trigger.querySelectorAll('li, option, div.item, span.item'));
   }
   
   if (all.length === 0) {
@@ -218,7 +218,7 @@ async function fillDropdown(trigger, dataValue, textValue) {
     await delay(300);
     return true;
   } else {
-    if (wrapper) wrapper.click();
+    if (trigger) trigger.click();
     document.body.click(); // Close others
     document.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
     document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
