@@ -147,7 +147,14 @@ async function fillDropdown(trigger, dataValue, textValue) {
   await delay(200);
 
   trigger.scrollIntoView({ block: 'center' });
-  trigger.click();
+  
+  // Click specifically on the arrow or input if it's a custom dropdown to ensure it opens
+  var innerArrow = trigger.querySelector('.arrow, .MuiSelect-icon');
+  var innerInput = trigger.querySelector('input[type="text"]:not([hidden])');
+  if (innerArrow) { innerArrow.click(); }
+  else if (innerInput) { innerInput.click(); }
+  else { trigger.click(); }
+  
   await delay(800);
 
   var popupList = Array.from(document.querySelectorAll('.MuiPopover-root, .MuiMenu-paper, [role="presentation"], [role="listbox"], .menu, .dropdown-menu, .dropdown-content, .select2-dropdown, .ant-select-dropdown, .el-select-dropdown, .vs__dropdown-menu, .p-dropdown-panel, .popup'));
@@ -450,7 +457,7 @@ async function runAutoFill(config) {
             if (prevPriority === 1 && currPriority === 2) await delay(1500);
             if (prevPriority === 2 && currPriority === 3) await delay(1500);
             
-            var dropdowns = document.querySelectorAll('.input-field-select');
+            var dropdowns = document.querySelectorAll('select, .input-field-select, x-select-area, .MuiSelect-root, .MuiSelect-select');
             for (var di = 0; di < dropdowns.length; di++) {
                 var el = dropdowns[di];
                 if (done.has(el)) continue;
